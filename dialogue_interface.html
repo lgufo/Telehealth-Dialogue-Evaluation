@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对话标注评估界面</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .dialogue-container {
+            margin-bottom: 40px;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+        }
+
+        .dialogue-header {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 6px 6px 0 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .dialogue-meta {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .dialogue-content {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .dialogue-line {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .doctor-line {
+            background: #e8f5e8;
+            border-left: 4px solid #27ae60;
+        }
+
+        .patient-line {
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+        }
+
+        .end-line {
+            background: #f0f0f0;
+            border-left: 4px solid #95a5a6;
+            color: #666;
+            font-style: italic;
+        }
+
+        .labels-section {
+            margin-top: 25px;
+        }
+
+        .label-category {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: #34495e;
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .label-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+        }
+
+        .label-item:last-child {
+            border-bottom: none;
+        }
+
+        .label-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+
+        .label-value {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .score {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .reason {
+            color: #555;
+            font-style: italic;
+        }
+
+        .evaluation {
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .evaluation-question {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .suitable { color: #27ae60; }
+        .unsuitable { color: #e74c3c; }
+        .uncertain { color: #f39c12; }
+
+        .navigation {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .nav-button {
+            padding: 12px 25px;
+            margin: 0 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .nav-button:hover {
+            background: #2980b9;
+        }
+
+        .nav-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .progress {
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #fdf2f2;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .radio-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>医疗对话标注质量评估系统</h1>
+        
+        <div class="loading" id="loading">正在加载数据...</div>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+        
+        <div id="main-content" style="display: none;">
+            <div class="progress">
+                <span id="current-page">1</span> / <span id="total-pages">0</span> 
+                (对话ID: <span id="current-dialogue-id">0</span>)
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" id="prev-btn" onclick="previousDialogue()">上一个对话</button>
+                <button class="nav-button" id="next-btn" onclick="nextDialogue()">下一个对话</button>
+            </div>
+            
+            <div id="dialogue-display"></div>
+            
+            <div class="navigation">
+                <button class="nav-button" id="prev-btn-bottom" onclick="previousDialogue()">上一个对话</button>
+                <button class="nav-button" id="next-btn-bottom" onclick="nextDialogue()">下一个对话</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let dialogueData = [];
+        let currentIndex = 0;
+        
+        // 加载JSON数据
+        async function loadData() {
+            try {
+                const response = await fetch('new_labeled_1_120_processed_cn_telehealth_2020.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                dialogueData = await response.json();
+                
+                if (!Array.isArray(dialogueData) || dialogueData.length === 0) {
+                    throw new Error('数据格式错误或为空');
+                }
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('total-pages').textContent = dialogueData.length;
+                
+                displayCurrentDialogue();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').style.display = 'none';
+                const errorDiv = document.getElementById('error-message');
+                errorDiv.textContent = `加载数据失败: ${error.message}`;
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        // 显示当前对话
+        function displayCurrentDialogue() {
+            if (!dialogueData || dialogueData.length === 0) return;
+            
+            const dialogue = dialogueData[currentIndex];
+            const container = document.getElementById('dialogue-display');
+            
+            // 更新进度信息
+            document.getElementById('current-page').textContent = currentIndex + 1;
+            document.getElementById('current-dialogue-id').textContent = dialogue.data_sample.dialogue_id;
+            
+            // 更新按钮状态
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').disabled = currentIndex === dialogueData.length - 1;
+            document.getElementById('prev-btn-bottom').disabled = currentIndex === 0;
+            document.getElementById('next-btn-bottom').disabled = currentIndex === dialogueData.length - 1;
+            
+            let html = `
+                <div class="dialogue-container">
+                    <div class="dialogue-header">
+                        对话 ID: ${dialogue.data_sample.dialogue_id} - ${dialogue.data_sample.doctor_faculty}
+                    </div>
+                    
+                    <div class="dialogue-meta">
+                        <strong>疾病：</strong>${dialogue.data_sample.patient_description?.疾病 || '未填写'}<br>
+                        <strong>患病时长：</strong>${dialogue.data_sample.patient_description?.患病多久 || '未填写'}<br>
+                        <strong>病情描述：</strong>${dialogue.data_sample.patient_description?.病情描述 || '未填写'}
+                    </div>
+                    
+                    <div class="dialogue-content">
+                        <h3>对话内容：</h3>`;
+            
+            // 显示对话内容
+            dialogue.data_sample.dialogue.forEach(line => {
+                if (line.speaker === '医生') {
+                    html += `<div class="dialogue-line doctor-line"><strong>医生：</strong>"${line.lines}"</div>`;
+                } else if (line.speaker === '病人') {
+                    html += `<div class="dialogue-line patient-line"><strong>病人：</strong>"${line.lines}"</div>`;
+                } else if (line.speaker === 'end') {
+                    html += `<div class="dialogue-line end-line"><strong>[对话结束]</strong></div>`;
+                }
+            });
+            
+            html += `</div>`;
+            
+            // 显示标签评估
+            html += generateLabelsSection(dialogue, 'description_labels', '病情描述标签');
+            html += generateLabelsSection(dialogue, 'conversation_labels', '对话内容标签');
+            
+            html += `</div>`;
+            
+            container.innerHTML = html;
+        }
+        
+        // 生成标签评估部分
+        function generateLabelsSection(dialogue, labelType, title) {
+            const labels = dialogue[labelType];
+            if (!labels) return '';
+            
+            let html = `
+                <div class="labels-section">
+                    <div class="label-category">
+                        <div class="category-header">${title}</div>`;
+            
+            const labelDefinitions = {
+                hallucination: '幻觉',
+                illusion: '错觉', 
+                delirium: '谵妄',
+                extrapolation: '外推',
+                delusion: '妄想',
+                confabulation: '虚构',
+                other: '其他'
+            };
+            
+            Object.keys(labelDefinitions).forEach(key => {
+                if (labels.hasOwnProperty(key) || labels.hasOwnProperty(key + '_reason') || labels.hasOwnProperty(key + '_importance')) {
+                    html += `
+                        <div class="label-item">
+                            <div class="label-name">${labelDefinitions[key]} (${key})</div>
+                            <div class="label-value">
+                                <strong>得分：</strong><span class="score">${labels[key] || 0}</span>
+                            </div>`;
+                    
+                    if (labels[key + '_importance'] !== undefined) {
+                        html += `
+                            <div class="label-value">
+                                <strong>重要性：</strong><span class="score">${labels[key + '_importance']}</span>
+                            </div>`;
+                    }
+                    
+                    if (labels[key + '_reason']) {
+                        html += `
+                            <div class="label-value">
+                                <strong>原因：</strong><span class="reason">${labels[key + '_reason']}</span>
+                            </div>`;
+                    }
+                    
+                    // 添加评估问题
+                    html += `
+                        <div class="evaluation">
+                            <div class="evaluation-question">您认为这个标注是否合适？</div>
+                            <div class="radio-group">
+                                <div class="radio-option suitable">
+                                    <input type="radio" name="${labelType}_${key}_eval" value="suitable" id="${labelType}_${key}_suitable">
+                                    <label for="${labelType}_${key}_suitable">合适</label>
+                                </div>
+                                <div class="radio-option unsuitable">
+                                    <input type="radio" name="${labelType}_${key}_eval" value="unsuitable" id="${labelType}_${key}_unsuitable">
+                                    <label for="${labelType}_${key}_unsuitable">不合适</label>
+                                </div>
+                                <div class="radio-option uncertain">
+                                    <input type="radio" name="${labelType}_${key}_eval" value="uncertain" id="${labelType}_${key}_uncertain">
+                                    <label for="${labelType}_${key}_uncertain">不确定</label>
+                                </div>
+                            </div>
+                        </div>`;
+                    
+                    html += `</div>`;
+                }
+            });
+            
+            html += `</div></div>`;
+            return html;
+        }
+        
+        // 导航函数
+        function previousDialogue() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayCurrentDialogue();
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        function nextDialogue() {
+            if (currentIndex < dialogueData.length - 1) {
+                currentIndex++;
+                displayCurrentDialogue();
+                window.scrollTo(0, 0);
+            }
+        }
+        
+        // 键盘导航
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A') {
+                previousDialogue();
+            } else if (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D') {
+                nextDialogue();
+            }
+        });
+        
+        // 页面加载完成后加载数据
+        window.addEventListener('load', loadData);
+    </script>
+</body>
+</html>

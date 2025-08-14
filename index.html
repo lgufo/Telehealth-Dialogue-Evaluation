@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Dialogue Evaluation System</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Medical Dialogue Evaluation System</h1>
+            <div class="stats">
+                <span id="current-dialogue">Dialogue 1</span> / 
+                <span id="total-dialogues">0</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="dialogue-section">
+                <h2>Dialogue Content</h2>
+                <div id="dialogue-display" class="dialogue-display">
+                    <p>Loading dialogue...</p>
+                </div>
+            </div>
+
+            <div class="evaluation-section">
+                <h2>Label Evaluation</h2>
+                <div id="labels-display" class="labels-display">
+                    <!-- Labels will be displayed here -->
+                </div>
+
+                <div class="notes-section">
+                    <h3>Evaluation Notes</h3>
+                    <textarea id="notes" placeholder="Add your evaluation notes here..."></textarea>
+                </div>
+
+                <div class="importance-slider-section">
+                    <label class="importance-label">Overall Dialogue Importance Score:</label>
+                    <div class="slider-container">
+                        <input type="range" 
+                               class="importance-slider" 
+                               id="dialogue-importance" 
+                               min="0" 
+                               max="1" 
+                               step="0.1" 
+                               value="0.5"
+                               oninput="updateImportanceDisplay(this)">
+                        <div class="slider-value" id="dialogue-importance_value">0.5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn" class="nav-btn">← Previous</button>
+            <button id="save-btn" class="save-btn">Save Evaluation</button>
+            <button id="next-btn" class="nav-btn">Next →</button>
+        </div>
+
+        <div class="progress-bar">
+            <div id="progress" class="progress"></div>
+        </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+</body>
+</html>

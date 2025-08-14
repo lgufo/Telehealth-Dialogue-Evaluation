@@ -1,0 +1,15 @@
+{
+  "name": "dialogue-evaluation-interface",
+  "version": "1.0.0",
+  "description": "Medical dialogue annotation quality assessment system",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^4.4.5"
+  },
+  "type": "module"
+}
