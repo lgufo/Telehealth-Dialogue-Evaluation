@@ -114,13 +114,13 @@ function displayLabels(dialogue) {
 
     // Define all possible label types and their descriptions
     const labelTypes = {
-        'hallucination': 'Hallucination (false perceptions)',
-        'illusion': 'Illusion (misinterpretation of real stimuli)', 
-        'delirium': 'Delirium (confusion and disorientation)',
-        'extrapolation': 'Extrapolation (extending beyond available data)',
-        'delusion': 'Delusion (fixed false beliefs)',
-        'confabulation': 'Confabulation (fabricated or distorted memories)',
-        'other': 'Other cognitive distortion'
+        // 'hallucination': 'Hallucination (false perceptions)',
+        'illusion': 'Illusion (distorted facts due to conflated concepts)', 
+        'delirium': 'Delirium (omits vital information that leads to fragmented understanding)',
+        'extrapolation': 'Extrapolation (misapplies general advice to inappropriate contexts)',
+        'delusion': 'Delusion (holds a fixed and false belief presented as facts)',
+        'confabulation': 'Confabulation (fills knowledge gaps with plausible but false information)',
+        'other': 'Other cognitive distortion',
     };
 
     // Filter labels to only show those with value > 0
@@ -170,8 +170,11 @@ function displayLabels(dialogue) {
 
     labelsDisplay.innerHTML = labelsHtml;
 
-    // Add event listeners for evaluation changes (but don't auto-save)
-    // Remove the auto-save event listener
+    // Add event listeners for radio buttons to auto-save on change
+    const radioButtons = labelsDisplay.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', autoSaveCurrentEvaluation);
+    });
 }
 
 // Get current evaluation for a label
@@ -198,9 +201,9 @@ window.updateImportanceDisplay = function(slider) {
     evaluationData[tempKey] = slider.value;
 }
 
-// Save evaluation data
-function saveEvaluation() {
-    // Collect current form data when save button is clicked
+// Auto-save current evaluation data to localStorage
+function autoSaveCurrentEvaluation() {
+    // Collect current form data
     const radioButtons = labelsDisplay.querySelectorAll('input[type="radio"]:checked');
     const dialogueImportanceSlider = document.getElementById('dialogue-importance');
     
@@ -221,9 +224,15 @@ function saveEvaluation() {
     const notesKey = `${currentIndex}_notes`;
     evaluationData[notesKey] = notesTextarea.value;
 
-    // Store in localStorage only when save button is clicked
+    // Store in localStorage automatically
     localStorage.setItem('dialogueEvaluations', JSON.stringify(evaluationData));
+}
 
+// Download evaluation results (renamed from saveEvaluation)
+function downloadResults() {
+    // Auto-save current state before downloading
+    autoSaveCurrentEvaluation();
+    
     // Export to file
     exportEvaluations();
     
@@ -247,6 +256,8 @@ function updateProgress() {
 // Navigation functions
 function goToNext() {
     if (currentIndex < dialoguesData.length - 1) {
+        // Auto-save current evaluation before navigating
+        autoSaveCurrentEvaluation();
         currentIndex++;
         displayDialogue(currentIndex);
         updateProgress();
@@ -255,6 +266,8 @@ function goToNext() {
 
 function goToPrevious() {
     if (currentIndex > 0) {
+        // Auto-save current evaluation before navigating
+        autoSaveCurrentEvaluation();
         currentIndex--;
         displayDialogue(currentIndex);
         updateProgress();
@@ -349,14 +362,16 @@ function showSaveMessage() {
 // Event listeners
 nextBtn.addEventListener('click', goToNext);
 prevBtn.addEventListener('click', goToPrevious);
-saveBtn.addEventListener('click', saveEvaluation);
-// Remove auto-save from notes textarea
+saveBtn.addEventListener('click', downloadResults);
+
+// Add auto-save for notes textarea
+notesTextarea.addEventListener('input', autoSaveCurrentEvaluation);
 
 // Keyboard navigation
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') goToPrevious();
     if (e.key === 'ArrowRight') goToNext();
-    if (e.key === 'Enter' && e.ctrlKey) saveEvaluation();
+    if (e.key === 'Enter' && e.ctrlKey) downloadResults();
 });
 
 // Load saved evaluations from localStorage
@@ -378,6 +393,7 @@ function init() {
         if (importanceSlider) {
             importanceSlider.addEventListener('input', function() {
                 window.updateImportanceDisplay(this);
+                autoSaveCurrentEvaluation(); // Auto-save when slider changes
             });
         }
     }, 100);

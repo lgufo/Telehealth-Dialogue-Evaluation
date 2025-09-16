@@ -18,7 +18,7 @@ def check_dialogue(dialogue):
             patient_has = True
     return doctor_has and not patient_has
 
-with open('new_labeled_1_120_processed_cn_telehealth_2020.json', 'r', encoding='utf-8') as f:
+with open('labeled_120_200_processed_cn_telehealth_2020.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 suspect_dialogue_ids = []
@@ -30,3 +30,11 @@ for item in data:
 
 print("疑似原本包含图片、语音等信息的 dialogue_id：")
 print(suspect_dialogue_ids)
+
+# save the not suspect dialogue to a new json file
+cleaned_data = [item for item in data if item['data_sample']['dialogue_id'] not in suspect_dialogue_ids]
+with open(
+    "labeled_1_120_processed_cn_telehealth_2020.json", "w", encoding="utf-8"
+) as f:
+    json.dump(cleaned_data, f, ensure_ascii=False, indent=4)
+print(f"已保存清理后的数据，共 {len(cleaned_data)} 条记录。")
